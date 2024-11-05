@@ -63,6 +63,18 @@ services: # 도커에서 사용하는 컨테이너를 정의
       network:
         ipv4_address: 172.19.0.6
 
+  url:
+    image: redis:7.4.1-bookworm
+    restart: always
+    tty: true
+    stdin_open: true
+    command: redis-server --requirepass snj --port 6379
+    ports:
+      - 6379:6379
+    networks:
+      network:
+        ipv4_address: 172.19.0.7
+
   url_filter:
     image: redis:7.4.1-bookworm
     restart: always
@@ -75,17 +87,17 @@ services: # 도커에서 사용하는 컨테이너를 정의
       network:
         ipv4_address: 172.19.0.8
 
-  url:
+  dns:
     image: redis:7.4.1-bookworm
     restart: always
     tty: true
     stdin_open: true
     command: redis-server --requirepass snj --port 6379
     ports:
-      - 6379:6379
+      - 6381:6379
     networks:
       network:
-        ipv4_address: 172.19.0.7
+        ipv4_address: 172.19.0.9
 
 
 networks: # 네트워크 칸

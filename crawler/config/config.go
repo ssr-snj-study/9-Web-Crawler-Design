@@ -11,13 +11,15 @@ import (
 )
 
 var database *gorm.DB
-var cache *redis.Client
+var nonStoredUrlCache *redis.Client
+var storedUrlCache *redis.Client
+var dnsCache *redis.Client
 
 var e error
 
 func init() {
 	databaseInit()
-	cacheInit()
+	urlInit()
 	setRedisKey()
 }
 
@@ -41,10 +43,24 @@ func databaseInit() {
 	}
 }
 
-func cacheInit() {
+func urlInit() {
 	//connectInfo := fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
-	connectInfo := fmt.Sprintf("%s:%d", "127.0.0.1", 6379)
-	cache = redis.NewClient(&redis.Options{
+	connectInfo := fmt.Sprintf("%s:%d", "127.0.0.1", 6380)
+	storedUrlCache = redis.NewClient(&redis.Options{
+		Addr: connectInfo, // Redis 서버 주소
+		//Password: os.Getenv("REDIS_PASSWORD"), // 비밀번호가 없다면 빈 문자열
+		Password: "snj", // 비밀번호가 없다면 빈 문자열
+	})
+
+	connectInfo = fmt.Sprintf("%s:%d", "127.0.0.1", 6379)
+	nonStoredUrlCache = redis.NewClient(&redis.Options{
+		Addr: connectInfo, // Redis 서버 주소
+		//Password: os.Getenv("REDIS_PASSWORD"), // 비밀번호가 없다면 빈 문자열
+		Password: "snj", // 비밀번호가 없다면 빈 문자열
+	})
+
+	connectInfo = fmt.Sprintf("%s:%d", "127.0.0.1", 6381)
+	dnsCache = redis.NewClient(&redis.Options{
 		Addr: connectInfo, // Redis 서버 주소
 		//Password: os.Getenv("REDIS_PASSWORD"), // 비밀번호가 없다면 빈 문자열
 		Password: "snj", // 비밀번호가 없다면 빈 문자열
@@ -56,14 +72,22 @@ func DB() *gorm.DB {
 	return database
 }
 
-func Cache() *redis.Client {
-	return cache
+func NonStoredUrlCache() *redis.Client {
+	return nonStoredUrlCache
+}
+
+func StoredUrlCache() *redis.Client {
+	return storedUrlCache
+}
+
+func DnsCache() *redis.Client {
+	return dnsCache
 }
 
 func setRedisKey() {
 	key := "counter"
 
-	rdb := Cache()
+	rdb := StoredUrlCache()
 	ctx := context.Background()
 
 	exists, err := rdb.Exists(ctx, key).Result()

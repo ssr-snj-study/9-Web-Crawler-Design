@@ -5,6 +5,7 @@ PGPASSWORD=$POSTGRESQL_PASSWORD psql -v ON_ERROR_STOP=1 --username "$POSTGRESQL_
 	CREATE TABLE url (
   short_url varchar NOT NULL,
   long_url varchar NOT NULL,
+  ip varchar ,
   is_enable int4 NOT NULL,
   reg_date timestamp NOT NULL,
   url_id serial4 NOT NULL,

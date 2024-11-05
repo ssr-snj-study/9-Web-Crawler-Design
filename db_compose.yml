@@ -1,0 +1,95 @@
+version: "3" # 버전에 따라서 기능이 달라질수 있다고 합니다.
+# docker-compose --env-file ./data/db.env -f .\db_compose.yml up -d
+
+services: # 도커에서 사용하는 컨테이너를 정의
+  master-0:
+    image: bitnami/postgresql-repmgr:14
+    ports:
+      - 15432:5432
+    volumes:
+      - ./data/db_script:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${COMMON_POSTGRESQL_POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${COMMON_POSTGRESQL_USERNAME}
+      - POSTGRESQL_PASSWORD=${COMMON_POSTGRESQL_PASSWORD}
+      - POSTGRESQL_DATABASE=${COMMON_POSTGRESQL_DATABASE}
+      - REPMGR_PASSWORD=${COMMON_REPMGR_PASSWORD}
+      - REPMGR_PRIMARY_HOST=${COMMON_REPMGR_PRIMARY_HOST}
+      - REPMGR_PARTNER_NODES=${COMMON_REPMGR_PARTNER_NODES}
+      - REPMGR_NODE_NAME=${MASTER_REPMGR_NODE_NAME}
+      - REPMGR_NODE_NETWORK_NAME=${MASTER_REPMGR_NODE_NETWORK_NAME}
+    networks:
+      network:
+        ipv4_address: 172.19.0.10 # 네트워크 고정 아이피
+  slave-1:
+    image: bitnami/postgresql-repmgr:14
+    ports:
+      - 25432:5432
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${COMMON_POSTGRESQL_POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${COMMON_POSTGRESQL_USERNAME}
+      - POSTGRESQL_PASSWORD=${COMMON_POSTGRESQL_PASSWORD}
+      - POSTGRESQL_DATABASE=${COMMON_POSTGRESQL_DATABASE}
+      - REPMGR_PASSWORD=${COMMON_REPMGR_PASSWORD}
+      - REPMGR_PRIMARY_HOST=${COMMON_REPMGR_PRIMARY_HOST}
+      - REPMGR_PARTNER_NODES=${COMMON_REPMGR_PARTNER_NODES}
+      - REPMGR_NODE_NAME=${SLAVE_REPMGR_NODE_NAME}
+      - REPMGR_NODE_NETWORK_NAME=${SLAVE_REPMGR_NODE_NETWORK_NAME}
+    networks:
+      network:
+        ipv4_address: 172.19.0.11 # 네트워크 고정 아이피
+  pgpool:
+    image: bitnami/pgpool:4
+    ports:
+      - 5432:5432
+    depends_on:
+      - master-0
+      - slave-1
+    environment:
+      - PGPOOL_BACKEND_NODES=${PGPOOL_BACKEND_NODES}
+      - PGPOOL_SR_CHECK_USER=${COMMON_POSTGRESQL_USERNAME}
+      - PGPOOL_SR_CHECK_PASSWORD=${COMMON_POSTGRESQL_PASSWORD}
+      - PGPOOL_ENABLE_LDAP=${PGPOOL_ENABLE_LDAP}
+      - PGPOOL_POSTGRES_USERNAME=${PGPOOL_POSTGRES_USERNAME}
+      - PGPOOL_POSTGRES_PASSWORD=${PGPOOL_POSTGRES_PASSWORD}
+      - PGPOOL_ADMIN_USERNAME=${PGPOOL_ADMIN_USERNAME}
+      - PGPOOL_ADMIN_PASSWORD=${PGPOOL_ADMIN_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "/opt/bitnami/scripts/pgpool/healthcheck.sh" ]
+      interval: 5s
+      timeout: 5s
+      retries: 2
+    networks:
+      network:
+        ipv4_address: 172.19.0.6
+
+  url_filter:
+    image: redis:7.4.1-bookworm
+    restart: always
+    tty: true
+    stdin_open: true
+    command: redis-server --requirepass snj --port 6379
+    ports:
+      - 6380:6379
+    networks:
+      network:
+        ipv4_address: 172.19.0.8
+
+  url:
+    image: redis:7.4.1-bookworm
+    restart: always
+    tty: true
+    stdin_open: true
+    command: redis-server --requirepass snj --port 6379
+    ports:
+      - 6379:6379
+    networks:
+      network:
+        ipv4_address: 172.19.0.7
+
+
+networks: # 네트워크 칸
+  network: # 네트워크 이름
+    external: # 외부의 네트워크를 가져오겠다는 이야기
+      name: myapi # 외부 네트워크 이름
+      # docker network create --gateway 172.19.0.1 --subnet 172.19.0.0/21 myapi

@@ -51,19 +51,10 @@ func StartCrawler(url string) {
 	}()
 	var page internal.UrlInfo
 	page.GetInfoFromUrl(url)
+	SetContents(url, &page)
 
-	html := page.GetHtml()
-	hash := internal.GetHtmlHash(html)
-
-	if !IsDuplicateHtml(hash) {
-		go func() {
-			_ = InsertContent(url, hash, html)
-		}()
-	}
-
-	urls := page.GetUrls()
 	// 채널 구독
-	for _, htmlUrl := range urls {
+	for _, htmlUrl := range page.GetUrls() {
 		if cache.alreadyCheckUrl(htmlUrl) {
 			continue
 		}
@@ -74,6 +65,17 @@ func StartCrawler(url string) {
 
 		go func() {
 			_ = InsertUrl(htmlUrl)
+		}()
+	}
+}
+
+func SetContents(url string, page *internal.UrlInfo) {
+	html := page.GetHtml()
+	hash := internal.GetHtmlHash(html)
+
+	if !IsDuplicateHtml(hash) {
+		go func() {
+			_ = InsertContent(url, hash, html)
 		}()
 	}
 }

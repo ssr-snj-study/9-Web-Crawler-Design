@@ -55,7 +55,7 @@ func StartCrawler(url string) {
 	html := page.GetHtml()
 	hash := internal.GetHtmlHash(html)
 
-	if CheckDuplicateHtml(hash) {
+	if !IsDuplicateHtml(hash) {
 		go func() {
 			_ = InsertContent(url, hash, html)
 		}()

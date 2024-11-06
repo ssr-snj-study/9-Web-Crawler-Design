@@ -29,19 +29,19 @@ func InsertUrl(htmlUrl string) error {
 	return nil
 }
 
-func CheckDuplicateHtml(hash string) bool {
+func IsDuplicateHtml(hash string) bool {
 	db := config.DB()
 	contents := &model.Contents{}
 
 	result := db.Where("hash = ?", hash).First(&contents)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
-			return true
+			return false
 		} else {
 			fmt.Println("select Error:", result.Error)
 		}
 	}
-	return false
+	return true
 }
 
 func InsertContent(url, hash, htmlUrl string) error {

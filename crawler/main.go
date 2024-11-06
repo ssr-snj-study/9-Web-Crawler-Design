@@ -5,5 +5,9 @@ import (
 )
 
 func main() {
+
+	// 미수집 저장소
+	// 도메인별
+
 	crawler.RunCrawlerMaxRoutine()
 }

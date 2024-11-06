@@ -20,7 +20,6 @@ type Contents struct {
 	LongUrl   string    `json:"longUrl"`
 	Size      int       `json:"size"`
 	Type      string    `json:"type"`
-	Html      string    `json:"html"`
 	Hash      string    `json:"hash"`
 	IsEnable  int       `json:"isEnable"`
 	RegDate   time.Time `json:"regDate"`

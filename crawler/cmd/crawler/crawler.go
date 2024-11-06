@@ -35,7 +35,6 @@ func RunCrawlerMaxRoutine() {
 		}()
 
 		wg.Wait()
-
 	}
 }
 

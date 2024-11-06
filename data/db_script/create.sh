@@ -19,7 +19,6 @@ PGPASSWORD=$POSTGRESQL_PASSWORD psql -v ON_ERROR_STOP=1 --username "$POSTGRESQL_
   long_url varchar NOT NULL,
   size int4 ,
   type varchar ,
-  html text NOT NULL,
   hash text NOT NULL,
   is_enable int4 NOT NULL,
   reg_date timestamp NOT NULL,

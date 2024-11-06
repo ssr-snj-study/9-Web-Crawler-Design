@@ -3,8 +3,8 @@ package model
 import "time"
 
 type Url struct {
-	ShortUrl string    `json:"shortUrl"`
 	LongUrl  string    `json:"longUrl"`
+	Ip       string    `json:"ip"`
 	IsEnable int       `json:"isEnable"`
 	RegDate  time.Time `json:"regDate"`
 	UrlId    int       `json:"urlId" gorm:"primaryKey"`
@@ -15,9 +15,10 @@ func (Url) TableName() string {
 }
 
 type Contents struct {
-	ContentId string    `json:"content_id"`
-	ShortUrl  string    `json:"shortUrl"`
-	Size      string    `json:"size"`
+	ContentId int       `json:"content_id"`
+	UrlId     int       `json:"urlId"`
+	LongUrl   string    `json:"longUrl"`
+	Size      int       `json:"size"`
 	Type      string    `json:"type"`
 	Html      string    `json:"html"`
 	Hash      string    `json:"hash"`

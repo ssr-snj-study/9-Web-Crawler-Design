@@ -1,8 +1,7 @@
-package internal
+package crawler
 
 import (
 	"context"
-	"crawler/config"
 	"fmt"
 	"net"
 	"net/url"
@@ -10,6 +9,7 @@ import (
 
 func GetIpFromUrl(rawURL string) (string, error) {
 	var ip string
+	cache := getCache()
 	// DNS를 통해 IP 주소 조회
 	parsedURL, err := url.Parse(rawURL)
 	if err != nil {
@@ -28,10 +28,8 @@ func GetIpFromUrl(rawURL string) (string, error) {
 		ip = fmt.Sprintf("%s", urlIp)
 		break
 	}
-	dnsCache := config.DnsCache()
-
 	ctx := context.Background()
-	err = dnsCache.Set(ctx, rawURL, ip, 0).Err()
+	err = cache.DnsCache.Set(ctx, rawURL, ip, 0).Err()
 	if err != nil {
 		fmt.Println("Error setting value:", err)
 	}

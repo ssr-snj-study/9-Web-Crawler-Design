@@ -1,26 +1,10 @@
 package internal
 
 import (
-	"context"
-	"crawler/config"
 	"fmt"
-	"log"
 	"net"
 	"os"
 )
-
-func MakeShortUrl() string {
-	rdb := config.StoredUrlCache()
-	cnt, err := rdb.Get(context.Background(), "counter").Int64()
-	if err != nil {
-		log.Fatalf("Failed get counter: %v", err)
-	}
-	_, err = rdb.Incr(context.Background(), "counter").Result()
-	if err != nil {
-		log.Fatalf("Failed to increment key: %v", err)
-	}
-	return encodeBase62(cnt)
-}
 
 func MyIP() []string {
 	myIp := []string{}

@@ -19,8 +19,10 @@ class UncollectedUrlRepository:
         """
         domain: str = urlparse(url).hostname
         if domain is None:
+            self.logger.warning(f"Invalid URL: {url}")
             return
 
         async with self.redis_db as redis:
+            self.logger.info(f"Assign to domain queue: {domain}")
             await redis.lpush(domain, url)
             await redis.sadd("domain_queue_list", domain)

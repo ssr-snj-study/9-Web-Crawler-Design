@@ -1,12 +1,12 @@
 from dependency_injector.wiring import Provide, inject
-from . import FirstQueue
+from . import UncollectedUrlRepository
 import logging
 
 
 @inject
 async def run_crawler(
     logger: logging.Logger = Provide["services_container.logger"],
-    first_queue_service: FirstQueue = Provide["services_container.first_queue_service"],
+    uncollected_url_repository: UncollectedUrlRepository = Provide["services_container.uncollected_url_repository"],
 ):
     logger.info("Crawler Started")
     while True:
@@ -14,4 +14,4 @@ async def run_crawler(
         url = "https://www.naver.com"
 
         # 도메인큐(후면큐)
-        await first_queue_service.assign_to_domain_queue(url)
+        await uncollected_url_repository.assign_to_domain_queue(url)

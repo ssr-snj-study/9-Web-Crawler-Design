@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import logging
 
 
-class FirstQueue:
+class UncollectedUrlRepository:
     def __init__(self, logger: logging.Logger, rdb_session: AsyncSession, redis_db: AsyncIterator[aioredis.Redis]):
         self.logger = logger
         self.rdb_session = rdb_session

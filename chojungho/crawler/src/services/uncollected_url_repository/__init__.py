@@ -1,5 +1,5 @@
-from .first_queue import FirstQueue
+from .run_uncollected_url import UncollectedUrlRepository
 
 __all__ = [
-    "FirstQueue",
+    "UncollectedUrlRepository",
 ]

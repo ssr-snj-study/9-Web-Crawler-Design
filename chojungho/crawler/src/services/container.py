@@ -1,5 +1,5 @@
 from dependency_injector import containers, providers
-from services import FirstQueue
+from services import UncollectedUrlRepository
 
 
 class Container(containers.DeclarativeContainer):
@@ -13,8 +13,8 @@ class Container(containers.DeclarativeContainer):
     redis_client = providers.Resource()
 
     # uncollected_url_repository
-    first_queue_service = providers.Factory(
-        FirstQueue,
+    uncollected_url_repository = providers.Factory(
+        UncollectedUrlRepository,
         logger=logger,
         rdb_session=postgres_session.provided,
         redis_db=redis_client.provided,

@@ -15,7 +15,7 @@ class UrlFilter:
     ):
         self._url = None
         self.logger = logger
-        self._session = session
+        self.session = session
         self._exclude_extensions = exclude_extensions
         self._allowed_types = allowed_types
         self._exclusion_patterns = exclusion_patterns
@@ -47,7 +47,7 @@ class UrlFilter:
         :return: 제외 대상(True)인지 여부
         """
         try:
-            async with self._session.head(self.url, allow_redirects=True) as response:
+            async with self.session.head(self.url, allow_redirects=True) as response:
                 if response.status >= 400:
                     self.logger.info(f"URL {self.url} excluded by status code {response.status}")
                     return True
@@ -60,8 +60,6 @@ class UrlFilter:
         except aiohttp.ClientError as e:
             self.logger.error(f"Error checking URL {self.url} content type: {e}")
             return True
-        finally:
-            await self._session.close()
 
     async def filter_by_exclusion_list(self) -> bool:
         """

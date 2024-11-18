@@ -55,6 +55,7 @@ async def worker(
                 else:
                     # todo: 미방문 URL 미수집, URL저장소에 저장
                     ...
+            await url_filter.session.close()
             return urls
         else:
             logger.info(f"No URL in queue for domain: {domain}")

@@ -1,14 +1,19 @@
 import asyncio
 from container import Container
-from services.run import run_crawler
+from services import run_uncollected_url_repository, run_crawler
 
 
-async def main():
+async def main() -> None:
+    """
+    메인 함수
+    :return: None
+    """
     container = Container()
     await container.init_resources()
 
     try:
-        await run_crawler()
+        await run_uncollected_url_repository()  # 미수집 URL 저장소 실행
+        await run_crawler()  # 크롤링 작업 실행
     finally:
         await container.shutdown_resources()
 

@@ -1,15 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import AsyncIterator
-from redis import asyncio as aioredis
 from urllib.parse import urlparse
+from services.redis_utils import RedisUtil
 import logging
 
 
 class UncollectedUrlRepository:
-    def __init__(self, logger: logging.Logger, rdb_session: AsyncSession, redis_db: AsyncIterator[aioredis.Redis]):
+    def __init__(self, logger: logging.Logger, rdb_session: AsyncSession, redis_util: RedisUtil):
         self.logger = logger
         self.rdb_session = rdb_session
-        self.redis_db = redis_db
+        self.redis_util = redis_util
 
     async def assign_to_domain_queue(self, url: str) -> None:
         """
@@ -22,7 +21,6 @@ class UncollectedUrlRepository:
             self.logger.warning(f"Invalid URL: {url}")
             return
 
-        async with self.redis_db as redis:
-            self.logger.info(f"Assign to domain queue: {domain}")
-            await redis.lpush(domain, url)
-            await redis.sadd("domain_queue_list", domain)
+        self.logger.info(f"Assign to domain queue: {domain}")
+        await self.redis_util.lpush_domain(domain_name=domain, url=url)
+        await self.redis_util.sadd_domain(domain_list_name="domain_queue_list", domain=domain)

@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 from common import conf, setup_logging
 from infrastructure.rdb.rdb_postgresql import AsyncEngine, get_pg_session
 from infrastructure.nosql.redis_client import init_redis_pool
-from services import Container as ServicesContainer
+from services.container import Container as ServicesContainer
 
 
 class Container(containers.DeclarativeContainer):

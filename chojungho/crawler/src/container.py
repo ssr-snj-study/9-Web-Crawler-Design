@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 from common import conf, setup_logging
-from infrastructure.rdb.rdb_postgresql import AsyncEngine, get_pg_session
+from infrastructure.rdb.rdb_postgresql import AsyncEngine
 from infrastructure.nosql.redis_client import init_redis_pool
 from services.container import Container as ServicesContainer
 
@@ -22,11 +22,6 @@ class Container(containers.DeclarativeContainer):
     # PostgreSQL 리소스
     postgres_engine = providers.Resource(AsyncEngine, config=config)
 
-    postgres_session = providers.Resource(
-        get_pg_session,
-        session_factory=postgres_engine.provided.session_factory,
-    )
-
     # Redis 리소스
     redis_client = providers.Resource(
         init_redis_pool,
@@ -37,5 +32,5 @@ class Container(containers.DeclarativeContainer):
 
     # Service
     services_container = providers.Container(
-        ServicesContainer, logger=logger, postgres_session=postgres_session, redis_client=redis_client
+        ServicesContainer, logger=logger, postgres_engine=postgres_engine, redis_client=redis_client
     )

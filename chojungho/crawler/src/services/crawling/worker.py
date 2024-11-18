@@ -5,6 +5,7 @@ from services.redis_utils import RedisUtil
 from services.crawling import download_html
 from services.crawling.url_filter import UrlFilter
 from services.crawling.url_parser import extract_urls_from_soup
+from services.sqlalchemy_util import SqlAlchemyUtil
 
 
 @inject
@@ -13,6 +14,7 @@ async def worker(
     logger: logging.Logger = Provide["services_container.logger"],
     redis_util: RedisUtil = Provide["services_container.redis_util"],
     url_filter: UrlFilter = Provide["services_container.url_filter"],
+    sqlalchemy_util: SqlAlchemyUtil = Provide["services_container.sqlalchemy_util"],
 ):
     """
     크롤링 워커
@@ -41,15 +43,18 @@ async def worker(
             # URL 추출
             urls: set[str] = await extract_urls_from_soup(soup, domain.decode())
 
-            # todo: 추출한 URL필터 작업 진행
+            # 추출한 URL필터 작업
             for url in urls:
                 url_filter.url = url
                 if not await url_filter.is_crawlable_url():
                     continue
 
-                # todo: 방문한 URL체크
-
-                # todo: 미방문 URL 미수집, URL저장소에 저장
+                # 방문한 URL체크
+                if await sqlalchemy_util.check_url(url):
+                    continue
+                else:
+                    # todo: 미방문 URL 미수집, URL저장소에 저장
+                    ...
             return urls
         else:
             logger.info(f"No URL in queue for domain: {domain}")

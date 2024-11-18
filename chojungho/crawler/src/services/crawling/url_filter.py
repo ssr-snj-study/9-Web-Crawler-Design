@@ -60,6 +60,8 @@ class UrlFilter:
         except aiohttp.ClientError as e:
             self.logger.error(f"Error checking URL {self.url} content type: {e}")
             return True
+        finally:
+            await self._session.close()
 
     async def filter_by_exclusion_list(self) -> bool:
         """

@@ -20,24 +20,23 @@ class AsyncEngine:
                 },
             },
         )
-        self.session_factory = async_sessionmaker(
+        self._session_factory = async_sessionmaker(
             self.engine,
             autoflush=False,
             expire_on_commit=False,
             class_=AsyncSession,
         )
 
-
-@asynccontextmanager
-async def get_pg_session(
-    session_factory: async_sessionmaker,
-) -> AsyncIterator[AbstractAsyncContextManager[AsyncSession]]:
-    async with session_factory() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception as e:
-            await session.rollback()
-            raise e
-        finally:
-            await session.close()
+    @asynccontextmanager
+    async def get_pg_session(
+        self,
+    ) -> AsyncIterator[AbstractAsyncContextManager[AsyncSession]]:
+        async with self._session_factory() as session:
+            try:
+                yield session
+                await session.commit()
+            except Exception as e:
+                await session.rollback()
+                raise e
+            finally:
+                await session.close()

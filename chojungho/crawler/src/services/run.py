@@ -18,7 +18,7 @@ async def run_uncollected_url_repository(
     logger.info("Uncollected Url Repository Started")
     # while True:
     # todo 후면큐 구현후 전면큐 로직구현 예정
-    url = "https://www.naver.com"
+    url = "https://velog.io/"
     # 도메인큐(후면큐)
     await uncollected_url_repository.assign_to_domain_queue(url)
 

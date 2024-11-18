@@ -16,6 +16,10 @@ class UncollectedUrlRepository:
         :param url: 큐에 넣을 URL
         :return: None
         """
+        if urlparse(url).scheme != "https":
+            self.logger.warning(f"Not https: {url}")
+            return None
+
         domain: str = urlparse(url).hostname
         if domain is None:
             self.logger.warning(f"Invalid URL: {url}")

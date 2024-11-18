@@ -1,4 +1,4 @@
-from infrastructure.schema.user import Urls
+from infrastructure.schema.urls import Urls
 from sqlalchemy import exists, select
 import logging
 from contextlib import AbstractAsyncContextManager

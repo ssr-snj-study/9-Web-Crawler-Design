@@ -1,39 +1,53 @@
 package crawler
 
 import (
-	"crawler/config"
 	"crawler/internal"
 	"fmt"
-	"log"
 	"sync"
 )
 
 func RunCrawlerMaxRoutine() {
 	var wg sync.WaitGroup
 	maxRoutine := 3
-	cache := getCache()
-
-	pubsub := cache.Subscribe("urls")
 	ch := make(chan struct{}, maxRoutine)
 
 	// 메시지 대기
 	for {
 		wg.Add(1)
-		ch <- struct{}{}
 		fmt.Println("Subscribed to channel. Waiting for messages...")
-		msg, err := pubsub.ReceiveMessage(config.Ctx)
-		if err != nil {
-			log.Fatalf("Failed to receive message: %v", err)
+		for i := 0; i < 3; i++ {
+			value, ok := dnsQueueList.First.Dequeue()
+			if ok {
+				go func() {
+					defer wg.Done()
+					ch <- struct{}{}
+					defer func() { <-ch }()
+					StartCrawler(value)
+				}()
+			}
 		}
-
-		// 메시지가 들어오면 processMessage 함수 호출
-		fmt.Printf("Received message: %s\n", msg.Payload)
-		go func() {
-			defer wg.Done()
-			defer func() { <-ch }()
-			StartCrawler(msg.Payload)
-		}()
-
+		for i := 0; i < 2; i++ {
+			value, ok := dnsQueueList.Second.Dequeue()
+			if ok {
+				go func() {
+					defer wg.Done()
+					ch <- struct{}{}
+					defer func() { <-ch }()
+					StartCrawler(value)
+				}()
+			}
+		}
+		for i := 0; i < 1; i++ {
+			value, ok := dnsQueueList.Third.Dequeue()
+			if ok {
+				go func() {
+					defer wg.Done()
+					ch <- struct{}{}
+					defer func() { <-ch }()
+					StartCrawler(value)
+				}()
+			}
+		}
 		wg.Wait()
 	}
 }

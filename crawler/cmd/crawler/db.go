@@ -47,7 +47,7 @@ func IsDuplicateHtml(hash string) bool {
 func InsertContent(url, hash, htmlUrl string) error {
 	db := config.DB()
 	// 존재하지 않으면 Insert
-	contents := &model.Contents{LongUrl: url, Html: htmlUrl, Hash: hash, IsEnable: 1, RegDate: time.Now()}
+	contents := &model.Contents{LongUrl: url, Hash: hash, IsEnable: 1, RegDate: time.Now()}
 	if err := db.Create(contents).Error; err != nil {
 		fmt.Println("Error inserting record:", err)
 	} else {

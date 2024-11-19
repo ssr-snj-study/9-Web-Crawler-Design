@@ -33,7 +33,7 @@ func urlInit() {
 		Password: "snj", // 비밀번호가 없다면 빈 문자열
 	})
 
-	connectInfo = fmt.Sprintf("%s:%d", "127.0.0.1", 6379)
+	connectInfo = fmt.Sprintf("%s:%d", "127.0.0.1", 6388)
 	cache.NonStoredUrlCache = redis.NewClient(&redis.Options{
 		Addr: connectInfo, // Redis 서버 주소
 		//Password: os.Getenv("REDIS_PASSWORD"), // 비밀번호가 없다면 빈 문자열
@@ -51,8 +51,7 @@ func urlInit() {
 }
 
 func (c *Cache) alreadyCheckUrl(url string) bool {
-	storedUrlCache := c.StoredUrlCache
-	if exists, _ := storedUrlCache.Exists(config.Ctx, url).Result(); exists > 0 {
+	if exists, _ := c.StoredUrlCache.Exists(config.Ctx, url).Result(); exists > 0 {
 		return true
 	}
 	return false
@@ -73,5 +72,28 @@ func (c *Cache) StoreAlreadyCheckUrl(url string) {
 	err := c.StoredUrlCache.Set(config.Ctx, url, "1", 0).Err()
 	if err != nil {
 		fmt.Println("Error setting value:", err)
+	}
+}
+
+func (c *Cache) SetDnsList() {
+	err := c.NonStoredUrlCache.Set(config.Ctx, "news.naver.com", "q1", 0).Err()
+	if err != nil {
+		fmt.Println("Error setting value:", err)
+	}
+	err = c.NonStoredUrlCache.Set(config.Ctx, "blog.naver.com", "q2", 0).Err()
+	if err != nil {
+		fmt.Println("Error setting value:", err)
+	}
+}
+
+func (c *Cache) FindQueue(url string) string {
+	queue, err := c.StoredUrlCache.Get(config.Ctx, url).Result()
+	if err == redis.Nil {
+		return "q3"
+	} else if err != nil {
+		fmt.Println("Error getting value:", err)
+		return "q3"
+	} else {
+		return queue
 	}
 }

@@ -1,5 +1,5 @@
 from infrastructure.schema.urls import Urls
-from sqlalchemy import exists, select
+from sqlalchemy import exists, select, insert
 import logging
 from contextlib import AbstractAsyncContextManager
 from typing import Callable
@@ -27,3 +27,13 @@ class SqlAlchemyUtil:
         else:
             self.logger.info(f"URL {url} is not collected")
             return False
+
+    async def save_url(self, url: str) -> None:
+        """
+        URL 저장
+        :param url: URL
+        """
+        async with self.rdb_session() as session:
+            await session.execute(insert(Urls).values(url=url))
+            await session.commit()
+            self.logger.info(f"URL {url} saved")

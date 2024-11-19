@@ -54,7 +54,7 @@ async def worker(
                     continue
                 else:
                     # todo: 미방문 URL 미수집, URL저장소에 저장
-                    ...
+                    await sqlalchemy_util.save_url(url)
             await url_filter.session.close()
             return urls
         else:

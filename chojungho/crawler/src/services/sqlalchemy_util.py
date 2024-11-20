@@ -4,9 +4,11 @@ import logging
 from contextlib import AbstractAsyncContextManager
 from typing import Callable
 from sqlalchemy.ext.asyncio import AsyncSession
+from dependency_injector.wiring import inject
 
 
 class SqlAlchemyUtil:
+    @inject
     def __init__(self, logger: logging, rdb_session: Callable[..., AbstractAsyncContextManager[AsyncSession]]):
         self.logger = logger
         self.rdb_session = rdb_session

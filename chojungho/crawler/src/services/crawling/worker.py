@@ -53,8 +53,9 @@ async def worker(
                 if await sqlalchemy_util.check_url(url):
                     continue
                 else:
-                    # todo: 미방문 URL 미수집, URL저장소에 저장
+                    # 미방문 URL 미수집, URL저장소에 저장
                     await sqlalchemy_util.save_url(url)
+                    await redis_util.push_url_to_url_list(url)
             await url_filter.session.close()
             return urls
         else:

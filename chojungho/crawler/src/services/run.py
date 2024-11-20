@@ -2,6 +2,7 @@ from dependency_injector.wiring import Provide, inject
 from . import UncollectedUrlRepository
 from .crawling import run_crawling
 import logging
+import asyncio
 
 
 @inject
@@ -16,11 +17,13 @@ async def run_uncollected_url_repository(
     :return: None
     """
     logger.info("Uncollected Url Repository Started")
-    # while True:
-    # todo 후면큐 구현후 전면큐 로직구현 예정
-    url = "https://velog.io/"
-    # 도메인큐(후면큐)
-    await uncollected_url_repository.assign_to_domain_queue(url)
+    while True:
+        # todo 후면큐 구현후 전면큐 로직구현 예정
+        url = await uncollected_url_repository.i_lpop_url_list()
+        # 도메인큐(후면큐)
+        if url:
+            await uncollected_url_repository.assign_to_domain_queue(url)
+            await asyncio.sleep(1)
 
 
 @inject

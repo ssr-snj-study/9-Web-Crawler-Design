@@ -1,9 +1,11 @@
 from typing import AsyncIterator
 from redis import asyncio as aioredis
 import logging
+from dependency_injector.wiring import inject
 
 
 class RedisUtil:
+    @inject
     def __init__(self, logger: logging.Logger, redis_db: AsyncIterator[aioredis.Redis]):
         self.logger = logger
         self.redis_db = redis_db
@@ -49,3 +51,24 @@ class RedisUtil:
         """
         async with self.redis_db as redis:
             return await redis.smembers(domain_name)
+
+    async def push_url_to_url_list(self, url: str) -> None:
+        """
+        url_list에 url을 넣기
+        :param url: url
+        :return: None
+        """
+        async with self.redis_db as redis:
+            await redis.lpush("url_list", url)
+            self.logger.info(f"Push URL: {url} to url_list")
+
+    async def lpop_url_list(self) -> str | None:
+        """
+        url_list에서 url을 가져오기
+        :return: str | None
+        """
+        async with self.redis_db as redis:
+            url = await redis.lpop("url_list")
+            url = url.decode("utf-8") if url else None
+            self.logger.info(f"Get URL: {url} from url_list")
+            return url

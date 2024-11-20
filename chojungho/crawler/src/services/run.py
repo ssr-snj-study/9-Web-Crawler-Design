@@ -2,11 +2,10 @@ from dependency_injector.wiring import Provide, inject
 from . import UncollectedUrlRepository
 from .crawling import run_crawling
 import logging
-import asyncio
 
 
 @inject
-async def run_uncollected_url_repository(
+async def run_crawler(
     logger: logging.Logger = Provide["services_container.logger"],
     uncollected_url_repository: UncollectedUrlRepository = Provide["services_container.uncollected_url_repository"],
 ) -> None:
@@ -23,17 +22,4 @@ async def run_uncollected_url_repository(
         # 도메인큐(후면큐)
         if url:
             await uncollected_url_repository.assign_to_domain_queue(url)
-            await asyncio.sleep(1)
-
-
-@inject
-async def run_crawler(
-    logger: logging.Logger = Provide["services_container.logger"],
-) -> None:
-    """
-    크롤링 실행
-    :param logger: 로거
-    :return: None
-    """
-    logger.info("Crawler Started")
-    await run_crawling()
+            await run_crawling()

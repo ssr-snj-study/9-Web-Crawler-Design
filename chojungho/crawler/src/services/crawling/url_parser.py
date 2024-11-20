@@ -21,4 +21,15 @@ async def extract_urls_from_soup(soup: BeautifulSoup, base_url: str) -> set[str]
 
         urls.add(full_url)
 
+    for link in soup.find_all("img"):
+        href = link["src"]
+
+        # 앵커, JavaScript 무시
+        if href.startswith("#") or href.startswith("javascript") or not href.strip():
+            continue
+
+        full_url = urljoin(f"https://{base_url}", href)
+
+        urls.add(full_url)
+
     return urls

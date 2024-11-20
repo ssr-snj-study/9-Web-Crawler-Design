@@ -47,16 +47,17 @@ class UrlFilter:
         :return: 제외 대상(True)인지 여부
         """
         try:
-            async with self.session.head(self.url, allow_redirects=True) as response:
-                if response.status >= 400:
-                    self.logger.info(f"URL {self.url} excluded by status code {response.status}")
+            async with aiohttp.ClientSession() as session:  # ClientSession 인스턴스 생성
+                async with session.head(self.url, allow_redirects=True) as response:
+                    if response.status >= 400:
+                        self.logger.info(f"URL {self.url} excluded by status code {response.status}")
+                        return True
+                    content_type = response.headers.get("Content-Type", "")
+                    for allowed in self._allowed_types:
+                        if allowed in content_type:
+                            return False
+                    self.logger.info(f"URL {self.url} excluded by content type {content_type}")
                     return True
-                content_type = response.headers.get("Content-Type", "")
-                for allowed in self._allowed_types:
-                    if allowed in content_type:
-                        return False
-                self.logger.info(f"URL {self.url} excluded by content type {content_type}")
-                return True
         except aiohttp.ClientError as e:
             self.logger.error(f"Error checking URL {self.url} content type: {e}")
             return True

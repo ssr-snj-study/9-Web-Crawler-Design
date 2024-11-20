@@ -38,6 +38,8 @@ async def download_html(
             logger.error(f"Payload error: {e} for {url}")
         except asyncio.TimeoutError:
             logger.error(f"Timeout for {url}")
+        finally:
+            await session.close()
 
 
 # test

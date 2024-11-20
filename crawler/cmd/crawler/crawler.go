@@ -4,6 +4,7 @@ import (
 	"crawler/internal"
 	"fmt"
 	"sync"
+	"time"
 )
 
 func RunCrawlerMaxRoutine() {
@@ -13,11 +14,15 @@ func RunCrawlerMaxRoutine() {
 
 	// 메시지 대기
 	for {
+		time.Sleep(1 * time.Second)
 		wg.Add(1)
 		fmt.Println("Subscribed to channel. Waiting for messages...")
 		for i := 0; i < 3; i++ {
+			fmt.Println("start dns first queue")
 			value, ok := dnsQueueList.First.Dequeue()
 			if ok {
+				fmt.Println("start dns first ok")
+				wg.Add(1)
 				go func() {
 					defer wg.Done()
 					ch <- struct{}{}
@@ -28,7 +33,10 @@ func RunCrawlerMaxRoutine() {
 		}
 		for i := 0; i < 2; i++ {
 			value, ok := dnsQueueList.Second.Dequeue()
+			fmt.Println("start dns Second queue")
 			if ok {
+				fmt.Println("start dns Second ok")
+				wg.Add(1)
 				go func() {
 					defer wg.Done()
 					ch <- struct{}{}
@@ -39,7 +47,10 @@ func RunCrawlerMaxRoutine() {
 		}
 		for i := 0; i < 1; i++ {
 			value, ok := dnsQueueList.Third.Dequeue()
+			fmt.Println("start dns Third queue")
 			if ok {
+				fmt.Println("start dns Third ok")
+				wg.Add(1)
 				go func() {
 					defer wg.Done()
 					ch <- struct{}{}
@@ -48,6 +59,7 @@ func RunCrawlerMaxRoutine() {
 				}()
 			}
 		}
+		wg.Done()
 		wg.Wait()
 	}
 }

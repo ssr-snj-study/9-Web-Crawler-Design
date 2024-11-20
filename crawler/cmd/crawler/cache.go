@@ -87,7 +87,8 @@ func (c *Cache) SetDnsList() {
 }
 
 func (c *Cache) FindQueue(url string) string {
-	queue, err := c.StoredUrlCache.Get(config.Ctx, url).Result()
+	queue, err := c.NonStoredUrlCache.Get(config.Ctx, url).Result()
+	fmt.Println("queue: ", queue)
 	if err == redis.Nil {
 		return "q3"
 	} else if err != nil {
